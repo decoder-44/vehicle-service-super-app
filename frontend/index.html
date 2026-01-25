@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Super App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="root">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="logo">🚗 Vehicle Super App</div>
+                <div class="nav-menu" id="navMenu">
+                    <a href="#home" class="nav-link">Home</a>
+                    <a href="#auth" class="nav-link">Login</a>
+                    <a href="#dashboard" class="nav-link" style="display:none" id="dashboardLink">Dashboard</a>
+                    <button id="logoutBtn" class="nav-btn logout-btn" style="display:none">Logout</button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Container -->
+        <div class="container" id="mainContainer">
+            <!-- Auth Section -->
+            <section id="auth" class="section hidden">
+                <div class="form-container">
+                    <div class="tabs">
+                        <button class="tab-btn active" onclick="switchTab('login')">Login</button>
+                        <button class="tab-btn" onclick="switchTab('register')">Register</button>
+                        <button class="tab-btn" onclick="switchTab('otp')">Login with OTP</button>
+                    </div>
+
+                    <!-- Login Form -->
+                    <div id="login" class="tab-content active">
+                        <h2>Login</h2>
+                        <form id="loginForm">
+                            <input type="email" placeholder="Email" id="loginEmail" required>
+                            <input type="password" placeholder="Password" id="loginPassword" required>
+                            <button type="submit" class="btn">Login</button>
+                        </form>
+                        <p id="loginMsg"></p>
+                    </div>
+
+                    <!-- Register Form -->
+                    <div id="register" class="tab-content">
+                        <h2>Register</h2>
+                        <form id="registerForm">
+                            <input type="text" placeholder="Full Name" id="regFullName" required>
+                            <input type="email" placeholder="Email" id="regEmail" required>
+                            <input type="tel" placeholder="Phone (+919876543210)" id="regPhone" required>
+                            <input type="password" placeholder="Password (min 8 chars)" id="regPassword" required>
+                            <button type="submit" class="btn">Register</button>
+                        </form>
+                        <p id="regMsg"></p>
+                    </div>
+
+                    <!-- OTP Form -->
+                    <div id="otp" class="tab-content">
+                        <h2>Login with OTP</h2>
+                        <form id="otpForm">
+                            <input type="tel" placeholder="Phone (+919876543210)" id="otpPhone" required>
+                            <button type="button" class="btn secondary" onclick="sendOTP()">Send OTP</button>
+                            <input type="text" placeholder="Enter OTP" id="otpCode" style="display:none">
+                            <button type="submit" class="btn" style="display:none" id="verifyOtpBtn">Verify OTP</button>
+                        </form>
+                        <p id="otpMsg"></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="section hidden">
+                <div class="dashboard-container">
+                    <div class="sidebar">
+                        <ul class="menu">
+                            <li><a href="#profile" onclick="showTab('profile')">👤 Profile</a></li>
+                            <li><a href="#addresses" onclick="showTab('addresses')">📍 Addresses</a></li>
+                            <li><a href="#password" onclick="showTab('password')">🔐 Change Password</a></li>
+                            <li><a href="#role" onclick="showTab('role')">⭐ Convert Role</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="main-content">
+                        <!-- Profile Tab -->
+                        <div id="profile" class="tab-content active">
+                            <h2>My Profile</h2>
+                            <div id="profileInfo" class="profile-box">
+                                <p>Loading...</p>
+                            </div>
+                            <button class="btn" onclick="showEditProfile()">Edit Profile</button>
+                            <div id="editProfileForm" style="display:none" class="form-box">
+                                <h3>Edit Profile</h3>
+                                <form id="updateProfileForm">
+                                    <input type="text" placeholder="Full Name" id="editFullName">
+                                    <input type="tel" placeholder="Phone" id="editPhone">
+                                    <button type="submit" class="btn">Save Changes</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Addresses Tab -->
+                        <div id="addresses" class="tab-content">
+                            <h2>My Addresses</h2>
+                            <button class="btn" onclick="showAddAddressForm()">+ Add New Address</button>
+                            
+                            <div id="addAddressForm" style="display:none" class="form-box">
+                                <h3>Add Address</h3>
+                                <form id="newAddressForm">
+                                    <input type="text" placeholder="address_line1" id="address_line1" required>
+                                    <input type="text" placeholder="addressLine2" id="addressLine2">
+                                    <input type="text" placeholder="City" id="addrCity" required>
+                                    <input type="text" placeholder="State" id="addrState" required>
+                                    <input type="text" placeholder="Zip Code" id="addrZip" required>
+                                    <input type="text" placeholder="Country" id="addrCountry" required>
+                                    <select id="addrType" required>
+                                        <option>home</option>
+                                        <option>work</option>
+                                        <option>other</option>
+                                    </select>
+                                    <label>
+                                        <input type="checkbox" id="addrDefault"> Set as default
+                                    </label>
+                                    <button type="submit" class="btn">Add Address</button>
+                                </form>
+                            </div>
+
+                            <div id="addressesList" class="addresses-list">
+                                <p>Loading addresses...</p>
+                            </div>
+                        </div>
+
+                        <!-- Change Password Tab -->
+                        <div id="password" class="tab-content">
+                            <h2>Change Password</h2>
+                            <form id="changePasswordForm" class="form-box">
+                                <input type="password" placeholder="Current Password" id="oldPassword" required>
+                                <input type="password" placeholder="New Password (min 8 chars)" id="newPassword" required>
+                                <input type="password" placeholder="Confirm Password" id="confirmPassword" required>
+                                <button type="submit" class="btn">Change Password</button>
+                            </form>
+                            <p id="pwdMsg"></p>
+                        </div>
+
+                        <!-- Convert Role Tab -->
+                        <div id="role" class="tab-content">
+                            <h2>Convert User Role</h2>
+                            <div class="role-info">
+                                <p>Current Role: <strong id="currentRole">-</strong></p>
+                            </div>
+                            <form id="convertRoleForm" class="form-box">
+                                <select id="newRole" required>
+                                    <option value="">Select New Role</option>
+                                    <option value="customer">Customer</option>
+                                    <option value="merchant">Merchant (Sell Parts)</option>
+                                    <option value="mechanic">Mechanic (Provide Services)</option>
+                                    <option value="rental_host">Rental Host (Rent Vehicles)</option>
+                                    <option value="cleaning_partner">Cleaning Partner</option>
+                                </select>
+                                <button type="submit" class="btn">Convert Role</button>
+                            </form>
+                            <p id="roleMsg"></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Home Section -->
+            <section id="home" class="section">
+                <div class="hero">
+                    <h1>🚗 Vehicle Super App</h1>
+                    <p>Complete Multi-Sided Marketplace for Vehicle Services</p>
+                    <button class="btn large" onclick="scrollTo('auth')">Get Started</button>
+                </div>
+
+                <div class="features">
+                    <h2>Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>🔐 Secure Authentication</h3>
+                            <p>Login with email/password or phone OTP</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>👤 User Management</h3>
+                            <p>Manage profile, addresses, and preferences</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>⭐ Multiple Roles</h3>
+                            <p>Be a customer, merchant, mechanic or more</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📍 Location Based</h3>
+                            <p>Add multiple addresses and manage them</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="toast"></div>
+    </div>
+
+    <script src="src/api.js"></script>
+    <script src="src/app.js"></script>
+</body>
+</html>
