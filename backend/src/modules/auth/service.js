@@ -1,8 +1,11 @@
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import { v4 as uuidv4 } from 'uuid';
-import { query } from '../../database/connection.js';
-import logger from '../../utils/logger.js';
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { v4 as uuidv4 } from "uuid";
+import { query } from "../../database/connection.js";
+import logger from "../../utils/logger.js";
+import { CustomError } from "../../../../backend/src/errors/customError.js";
+import { ERROR_CODES } from "../../../../backend/src/errors/errorCodes.js";
+import { STATUS_CODES } from "../../../../src/modules/users/constants.js";
 
 const OTP_EXPIRY_TIME = 5 * 60 * 1000; // 5 minutes
 
@@ -21,15 +24,15 @@ export const sendOTP = async (phone) => {
        VALUES ($1, $2, $3, $4)
        ON CONFLICT (phone) DO UPDATE
        SET otp = $3, expires_at = $4`,
-      [otpId, phone, otp, expiresAt]
+      [otpId, phone, otp, expiresAt],
     );
 
     // TODO: Send OTP via SMS provider (Twilio/MSG91)
     logger.info(`OTP generated for phone: ${phone} (Dev: ${otp})`);
 
-    return { otpId, message: 'OTP sent successfully' };
+    return { otpId, message: "OTP sent successfully" };
   } catch (error) {
-    logger.error('Error sending OTP:', error);
+    logger.error("Error sending OTP:", error);
     throw error;
   }
 };
@@ -42,23 +45,23 @@ export const verifyOTP = async (phone, otp, otpId) => {
     // Fetch stored OTP
     const result = await query(
       `SELECT * FROM otp_store WHERE phone = $1 AND id = $2`,
-      [phone, otpId]
+      [phone, otpId],
     );
 
     if (result.rows.length === 0) {
-      throw new Error('Invalid OTP or OTP ID');
+      throw new Error("Invalid OTP or OTP ID");
     }
 
     const storedOtpRecord = result.rows[0];
 
     // Check OTP expiry
     if (new Date() > new Date(storedOtpRecord.expires_at)) {
-      throw new Error('OTP has expired');
+      throw new Error("OTP has expired");
     }
 
     // Verify OTP
     if (storedOtpRecord.otp !== otp) {
-      throw new Error('Invalid OTP');
+      throw new Error("Invalid OTP");
     }
 
     // Delete used OTP
@@ -77,7 +80,7 @@ export const verifyOTP = async (phone, otp, otpId) => {
 
     return { token, user };
   } catch (error) {
-    logger.error('Error verifying OTP:', error);
+    logger.error("Error verifying OTP:", error);
     throw error;
   }
 };
@@ -90,7 +93,7 @@ export const registerUser = async (email, password, fullName, phone = null) => {
     // Check if user exists
     const existingUser = await getUserByEmail(email);
     if (existingUser) {
-      throw new Error('Email already registered');
+      throw new Error("Email already registered");
     }
 
     const userId = uuidv4();
@@ -100,7 +103,16 @@ export const registerUser = async (email, password, fullName, phone = null) => {
       `INSERT INTO users (id, email, password_hash, full_name, phone, role, is_verified, kyc_status, created_at, updated_at, is_active)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW(), true)
        RETURNING *`,
-      [userId, email, passwordHash, fullName, phone, 'customer', false, 'pending']
+      [
+        userId,
+        email,
+        passwordHash,
+        fullName,
+        phone,
+        "customer",
+        false,
+        "pending",
+      ],
     );
 
     const user = result.rows[0];
@@ -110,7 +122,7 @@ export const registerUser = async (email, password, fullName, phone = null) => {
 
     return { token, user };
   } catch (error) {
-    logger.error('Error registering user:', error);
+    logger.error("Error registering user:", error);
     throw error;
   }
 };
@@ -123,14 +135,19 @@ export const loginUser = async (email, password) => {
     const user = await getUserByEmail(email);
 
     if (!user) {
-      throw new Error('Invalid email or password');
+      throw new Error("Invalid email or password");
     }
 
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
 
     if (!isPasswordValid) {
-      throw new Error('Invalid email or password');
+      const errorObj = {
+        code: ERROR_CODES.EMAIL_OR_PASSWORD_INVALID_ERROR,
+        data: {},
+        statusCode: STATUS_CODES.ERROR,
+      };
+      throw new CustomError(errorObj);
     }
 
     // Generate JWT token
@@ -138,7 +155,7 @@ export const loginUser = async (email, password) => {
 
     return { token, user };
   } catch (error) {
-    logger.error('Error logging in user:', error);
+    logger.error("Error logging in user:", error);
     throw error;
   }
 };
@@ -148,17 +165,20 @@ export const loginUser = async (email, password) => {
  */
 export const verifyEmail = async (token) => {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET + '_email_verification');
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET + "_email_verification",
+    );
 
     await query(
       `UPDATE users SET is_verified = true, updated_at = NOW() WHERE id = $1`,
-      [decoded.userId]
+      [decoded.userId],
     );
 
-    return { message: 'Email verified successfully' };
+    return { message: "Email verified successfully" };
   } catch (error) {
-    logger.error('Error verifying email:', error);
-    throw new Error('Invalid or expired verification token');
+    logger.error("Error verifying email:", error);
+    throw new Error("Invalid or expired verification token");
   }
 };
 
@@ -170,7 +190,7 @@ export const getUserByEmail = async (email) => {
     const result = await query(`SELECT * FROM users WHERE email = $1`, [email]);
     return result.rows[0] || null;
   } catch (error) {
-    logger.error('Error fetching user by email:', error);
+    logger.error("Error fetching user by email:", error);
     throw error;
   }
 };
@@ -183,7 +203,7 @@ export const getUserByPhone = async (phone) => {
     const result = await query(`SELECT * FROM users WHERE phone = $1`, [phone]);
     return result.rows[0] || null;
   } catch (error) {
-    logger.error('Error fetching user by phone:', error);
+    logger.error("Error fetching user by phone:", error);
     throw error;
   }
 };
@@ -196,7 +216,7 @@ export const getUserById = async (userId) => {
     const result = await query(`SELECT * FROM users WHERE id = $1`, [userId]);
     return result.rows[0] || null;
   } catch (error) {
-    logger.error('Error fetching user by ID:', error);
+    logger.error("Error fetching user by ID:", error);
     throw error;
   }
 };
@@ -211,12 +231,12 @@ const createUserWithPhone = async (phone) => {
       `INSERT INTO users (id, phone, full_name, role, is_verified, kyc_status, created_at, updated_at)
        VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
        RETURNING *`,
-      [userId, phone, '', 'customer', true, 'pending']
+      [userId, phone, "", "customer", true, "pending"],
     );
 
     return result.rows[0];
   } catch (error) {
-    logger.error('Error creating user with phone:', error);
+    logger.error("Error creating user with phone:", error);
     throw error;
   }
 };
@@ -241,7 +261,7 @@ export const generateJWT = (user) => {
   };
 
   return jwt.sign(payload, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN || '30d',
+    expiresIn: process.env.JWT_EXPIRES_IN || "30d",
   });
 };
 

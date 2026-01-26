@@ -2,6 +2,7 @@ import { sendSuccess, sendError } from '../../utils/response.js';
 import { validate, authSchemas } from '../../utils/validators.js';
 import logger from '../../utils/logger.js';
 import * as authService from './service.js';
+import { STATUS_CODES } from '../users/constants.js';
 
 /**
  * Send OTP endpoint
@@ -73,8 +74,8 @@ export const register = async (req, res, next) => {
     // Exclude password from response
     const userData = { ...result.user };
     delete userData.password_hash;
-
-    return sendSuccess(res, 201, { token: result.token, user: userData }, 'Registration successful');
+    const response = {statusCode: STATUS_CODES.SUCCESS, message: 'Registration successful', data: {token: result.token, user: userData}}
+    return sendSuccess(res, response);
   } catch (error) {
     logger.error('Register error:', error);
     if (error.message.includes('already')) {
@@ -106,7 +107,7 @@ export const login = async (req, res, next) => {
     return sendSuccess(res, 200, { token: result.token, user: userData }, 'Login successful');
   } catch (error) {
     logger.error('Login error:', error);
-    return sendError(res, 401, error.message);
+    return sendError(res, error);
   }
 };
 
