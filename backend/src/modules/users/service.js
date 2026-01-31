@@ -37,11 +37,11 @@ export const getUserProfile = async (userId) => {
   } catch (error) {
     logger.error(`Error fetching user profile: ${error.message}`);
     const errorObj = {
-        code: error.code || ERROR_CODES.GET_USER_PROFILE_INFO_ERROR,
-        data: { userId },
-        statusCode: STATUS_CODES.ERROR,
-      };
-      throw new CustomError(errorObj);
+      code: error.code || ERROR_CODES.GET_USER_PROFILE_INFO_ERROR,
+      data: { userId },
+      statusCode: STATUS_CODES.ERROR,
+    };
+    throw new CustomError(errorObj);
   }
 };
 
@@ -155,7 +155,16 @@ export const deactivateAccount = async (userId) => {
  */
 export const addAddress = async (userId, data) => {
   try {
-    const { address_line1, addressLine2, city, state, zipCode, country, type, isDefault } = data;
+    const {
+      address_line1,
+      addressLine2,
+      city,
+      state,
+      zipCode,
+      country,
+      type,
+      isDefault,
+    } = data;
 
     // If marking as default, unmark previous defaults
     if (isDefault) {
@@ -199,10 +208,22 @@ export const addAddress = async (userId, data) => {
 export const getUserAddresses = async (userId) => {
   try {
     const result = await pool.query(
-      `SELECT id, user_id, address_line1, city, state, zip_code, country, type, is_default, created_at, updated_at
-       FROM user_addresses 
-       WHERE user_id = $1 
-       ORDER BY is_default DESC, created_at DESC`,
+      `SELECT 
+      id, 
+      user_id, 
+      address_line1, 
+      address_line2, 
+      city, 
+      state, 
+      zip_code, 
+      country, 
+      type, 
+      is_default, 
+      created_at, 
+      updated_at
+   FROM user_addresses 
+   WHERE user_id = $1 
+   ORDER BY is_default DESC NULLS LAST, created_at DESC`,
       [userId],
     );
 
@@ -222,7 +243,8 @@ export const getUserAddresses = async (userId) => {
  */
 export const updateAddress = async (userId, addressId, data) => {
   try {
-    const { address_line1, city, state, zipCode, country, type, isDefault } = data;
+    const { address_line1, city, state, zipCode, country, type, isDefault } =
+      data;
 
     // If marking as default, unmark previous defaults of same type
     if (isDefault) {

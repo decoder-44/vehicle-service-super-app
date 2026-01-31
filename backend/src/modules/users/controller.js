@@ -3,6 +3,7 @@ import { sendSuccess, sendError } from '../../utils/response.js';
 import { validateRequest } from '../../middleware/validator.js';
 import { validators } from '../../utils/validators.js';
 import logger from '../../utils/logger.js';
+import { STATUS_CODES } from './constants.js';
 
 /**
  * User Controller - Phase 1.5
@@ -15,7 +16,12 @@ import logger from '../../utils/logger.js';
 export const getProfile = async (req, res, next) => {
   try {
     const user = await userService.getUserProfile(req.user.user_id);
-    sendSuccess(res, 200, 'User profile retrieved', user);
+    const response = {
+      statusCode: STATUS_CODES.SUCCESS,
+      message: 'User profile retrieved',
+      data: user
+    }
+    sendSuccess(res, response);
   } catch (error) {
     logger.error(`Error in getProfile: ${error.message}`);
     next(error);
@@ -30,7 +36,12 @@ export const updateProfile = async (req, res, next) => {
     await validateRequest(req.body, validators.updateProfile);
     
     const updated = await userService.updateUserProfile(req.user.user_id, req.body);
-    sendSuccess(res, 200, 'Profile updated successfully', updated);
+    const response = {
+      statusCode: STATUS_CODES.SUCCESS,
+      message: 'User profile updated',
+      data: updated
+    }
+    sendSuccess(res, response);
   } catch (error) {
     logger.error(`Error in updateProfile: ${error.message}`);
     next(error);
@@ -46,8 +57,12 @@ export const changePassword = async (req, res, next) => {
 
     const { oldPassword, newPassword } = req.body;
     await userService.changePassword(req.user.user_id, oldPassword, newPassword);
-
-    sendSuccess(res, 200, 'Password changed successfully', null);
+    const response = {
+      statusCode: STATUS_CODES.SUCCESS,
+      message: 'Password changed successfully',
+      data: null
+    }
+    sendSuccess(res, response);
   } catch (error) {
     logger.error(`Error in changePassword: ${error.message}`);
     next(error);
@@ -60,7 +75,12 @@ export const changePassword = async (req, res, next) => {
 export const deactivateAccount = async (req, res, next) => {
   try {
     await userService.deactivateAccount(req.user.user_id);
-    sendSuccess(res, 200, 'Account deactivated successfully', null);
+    const response = {
+      statusCode: STATUS_CODES.SUCCESS,
+      message: 'Account deactivated successfully',
+      data: null
+    }
+    sendSuccess(res, response);
   } catch (error) {
     logger.error(`Error in deactivateAccount: ${error.message}`);
     next(error);
@@ -75,7 +95,12 @@ export const addAddress = async (req, res, next) => {
     await validateRequest(req.body, validators.addAddress);
 
     const address = await userService.addAddress(req.user.user_id, req.body);
-    sendSuccess(res, 201, 'Address added successfully', address);
+    const response = {
+      statusCode: STATUS_CODES.SUCCESS,
+      message: 'Address added successfully',
+      data: address
+    }
+    sendSuccess(res, response);
   } catch (error) {
     logger.error(`Error in addAddress: ${error.message}`);
     next(error);
@@ -87,8 +112,13 @@ export const addAddress = async (req, res, next) => {
  */
 export const getAddresses = async (req, res, next) => {
   try {
-    const addresses = await userService.getUserAddresses(req.user.id);
-    sendSuccess(res, 200, 'Addresses retrieved', addresses);
+    const addresses = await userService.getUserAddresses(req.user.user_id);
+    const response = {
+      statusCode: STATUS_CODES.SUCCESS,
+      message: 'Addresses retrieved',
+      data: addresses
+    }
+    sendSuccess(res, response);
   } catch (error) {
     logger.error(`Error in getAddresses: ${error.message}`);
     next(error);
@@ -102,8 +132,13 @@ export const updateAddress = async (req, res, next) => {
   try {
     await validateRequest(req.body, validators.updateAddress);
 
-    const updated = await userService.updateAddress(req.user.id, req.params.id, req.body);
-    sendSuccess(res, 200, 'Address updated successfully', updated);
+    const updated = await userService.updateAddress(req.user.user_id, req.params.id, req.body);
+    const response = {
+      statusCode: STATUS_CODES.SUCCESS,
+      message: 'Address updated successfully',
+      data: updated
+    }
+    sendSuccess(res, response);
   } catch (error) {
     logger.error(`Error in updateAddress: ${error.message}`);
     next(error);
@@ -116,7 +151,12 @@ export const updateAddress = async (req, res, next) => {
 export const deleteAddress = async (req, res, next) => {
   try {
     await userService.deleteAddress(req.user.id, req.params.id);
-    sendSuccess(res, 200, 'Address deleted successfully', null);
+    const response = {
+      statusCode: STATUS_CODES.SUCCESS,
+      message: 'Address deleted successfully',
+      data: null
+    }
+    sendSuccess(res, response);
   } catch (error) {
     logger.error(`Error in deleteAddress: ${error.message}`);
     next(error);
@@ -131,7 +171,12 @@ export const convertRole = async (req, res, next) => {
     await validateRequest(req.body, validators.convertRole);
 
     const updated = await userService.convertUserRole(req.user.user_id, req.body.newRole);
-    sendSuccess(res, 200, 'Role converted successfully', updated);
+    const response = {
+      statusCode: STATUS_CODES.SUCCESS,
+      message: 'Role converted successfully',
+      data: updated
+    }
+    sendSuccess(res, response);
   } catch (error) {
     logger.error(`Error in convertRole: ${error.message}`);
     next(error);

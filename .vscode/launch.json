@@ -1,0 +1,53 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch Backend (npm: debug)",
+      "type": "pwa-node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "debug"],
+      "cwd": "${workspaceFolder}/backend",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Launch Backend (nodemon debug)",
+      "type": "pwa-node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:debug"],
+      "cwd": "${workspaceFolder}/backend",
+      "console": "integratedTerminal",
+      "restart": true,
+      "skipFiles": ["<node_internals>/**"]
+    },
+    // {
+    //   "name": "Launch (npm: debug)",
+    //   "type": "pwa-node",
+    //   "request": "launch",
+    //   "runtimeExecutable": "npm",
+    //   "runtimeArgs": ["run", "debug"],
+    //   "cwd": "${workspaceFolder}",
+    //   "console": "integratedTerminal",
+    //   "skipFiles": ["<node_internals>/**"]
+    // },
+    // {
+    //   "name": "Launch (npm: dev:debug) - nodemon",
+    //   "type": "pwa-node",
+    //   "request": "launch",
+    //   "runtimeExecutable": "npm",
+    //   "runtimeArgs": ["run", "dev:debug"],
+    //   "cwd": "${workspaceFolder}",
+    //   "console": "integratedTerminal",
+    //   "skipFiles": ["<node_internals>/**"]
+    // },
+    {
+      "name": "Python: Current File",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal"
+    }
+  ]
+}

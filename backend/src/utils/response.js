@@ -18,8 +18,9 @@ export class ApiResponse {
  * @param {*} data - Response data
  * @param {string} message - Response message
  */
-export const sendSuccess = (res, statusCode = 200, data = null, message = 'Success') => {
-  return res.status(statusCode).json(new ApiResponse(statusCode, data, message, true));
+export const sendSuccess = (res, responseData ) => {
+  const {statusCode = 200, message = 'Success', data = null} = responseData;
+  return res.status(statusCode).json(new ApiResponse(null, statusCode, data, message, true));
 };
 
 /**
@@ -30,8 +31,9 @@ export const sendSuccess = (res, statusCode = 200, data = null, message = 'Succe
  * @param {*} data - Additional error data
  * @param {string} errorCode - Application-specific error code
  */
-export const sendError = (res, errorCode, statusCode = 500, message = 'Internal Server Error', data = null) => {
-  return res.status(statusCode).json(new ApiResponse(errorCode, statusCode, data, message, false));
+export const sendError = (res, errorData) => {
+  const {code, statusCode = 500, message = 'Internal Server Error', data = null} = errorData;
+  return res.status(statusCode).json(new ApiResponse(code, statusCode, data, message, false));
 };
 
 /**

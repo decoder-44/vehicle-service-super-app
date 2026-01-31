@@ -2,7 +2,8 @@ import { ERROR_CODES } from "./errorCodes.js";
 import { ERROR_MESSAGES } from "./errorMessages.js";
 
 export class CustomError extends Error {
-  constructor({ code, data = null, statusCode } = {}) {
+  constructor(errorObject = {}) {
+    const { code, data = null, statusCode } = errorObject;
     const finalCode = code ?? ERROR_CODES.INTERNAL_SERVER_ERROR;
     const message = ERROR_MESSAGES[finalCode] ?? ERROR_MESSAGES[ERROR_CODES.INTERNAL_SERVER_ERROR];
 
