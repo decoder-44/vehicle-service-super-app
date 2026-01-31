@@ -11,6 +11,16 @@ import logger from './utils/logger.js';
 // Route imports
 import authRoutes from './modules/auth/routes.js';
 import userRoutes from './modules/users/routes.js';
+import kycRoutes from './modules/kyc/routes.js';
+import partsRoutes from './modules/parts/routes.js';
+import mechanicRoutes from './modules/mechanic/routes.js';
+import rentalRoutes from './modules/rental/routes.js';
+import rsaRoutes from './modules/rsa/routes.js';
+import cleaningRoutes from './modules/cleaning/routes.js';
+import paymentRoutes from './modules/payment/routes.js';
+import locationRoutes from './modules/location/routes.js';
+import notificationRoutes from './modules/notification/routes.js';
+import adminRoutes from './modules/admin/routes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -58,14 +68,17 @@ app.get('/', (req, res) => {
     endpoints: {
       health: '/health',
       auth: '/api/auth',
-      users: '/api/users (Phase 1.5)',
-      kyc: '/api/kyc (Phase 2)',
-      parts: '/api/parts (Phase 3)',
-      mechanic: '/api/mechanic (Phase 4)',
-      rental: '/api/rental (Phase 5)',
-      rsa: '/api/rsa (Phase 6)',
-      payment: '/api/payment (Phase 9)',
-      admin: '/api/admin (Phase 8)',
+      users: '/api/users',
+      kyc: '/api/kyc',
+      parts: '/api/parts',
+      mechanic: '/api/mechanic',
+      rental: '/api/rental',
+      rsa: '/api/rsa',
+      cleaning: '/api/cleaning',
+      payment: '/api/payment',
+      location: '/api/location',
+      notification: '/api/notification',
+      admin: '/api/admin',
     },
     documentation: '/README.md',
     timestamp: new Date().toISOString(),
@@ -83,19 +96,25 @@ app.get('/health', (req, res) => {
  * API Routes
  */
 
+// Core routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 
-// TODO: Add other module routes
-// app.use('/api/users', userRoutes);
-// app.use('/api/kyc', kycRoutes);
-// app.use('/api/parts', partsRoutes);
-// app.use('/api/mechanic', mechanicRoutes);
-// app.use('/api/rental', rentalRoutes);
-// app.use('/api/rsa', rsaRoutes);
-// app.use('/api/cleaning', cleaningRoutes);
-// app.use('/api/payment', paymentRoutes);
-// app.use('/api/admin', adminRoutes);
+// Feature routes
+app.use('/api/kyc', kycRoutes);
+app.use('/api/parts', partsRoutes);
+app.use('/api/mechanic', mechanicRoutes);
+app.use('/api/rental', rentalRoutes);
+app.use('/api/rsa', rsaRoutes);
+app.use('/api/cleaning', cleaningRoutes);
+
+// Service routes
+app.use('/api/payment', paymentRoutes);
+app.use('/api/location', locationRoutes);
+app.use('/api/notification', notificationRoutes);
+
+// Admin routes
+app.use('/api/admin', adminRoutes);
 
 /**
  * Error handling
